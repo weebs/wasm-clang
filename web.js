@@ -17,32 +17,40 @@
 const LAYOUT_CONFIG_KEY = 'layoutConfig';
 
 const initialProgram =
-`#include <canvas.h>
-#include <stdint.h>
-
-const int w = 1000;
-const int h = 800;
-Canvas c{w, h};
-ImageData image{w, h};
-
-int main() {
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            image.data[y * w + x] = RGB(x | y, 0, 0);
-        }
-    }
-    image.commit();
-    c.putImageData(image, 0, 0);
-
-    const char* msg = "x | y";
-    c.setFillStyle("white");
-    c.setFont("bold 200px sans");
-    c.fillText(msg, (w - c.measureText(msg)) / 2, (h + 100) / 2);
-}
-`;
+`
+let code () =
+    let items = System.Collections.Generic.List<int>()
+    for i in 1..10 do
+        items.Add(i * 2)
+    items.Add(11)
+    printfn "hello"
+    for i in 0..items.Length - 1 do
+        printfn $"items[{i}] = {items[i]}"
+code ()
+`    
 
 // Golden Layout
 let layout = null;
+let asmEditor = null;
+window.asmEditor = asmEditor;
+function AsmEditorComponent(container, state) {
+  asmEditor = ace.edit(container.getElement()[0]);
+  asmEditor.session.setMode('ace/mode/c_cpp');
+  asmEditor.setOption('fontSize', `${state.fontSize || 18}px`);
+  asmEditor.setReadOnly(true);
+
+  container.on('fontSizeChanged', fontSize => {
+    container.extendState({fontSize});
+    asmEditor.setFontSize(`${fontSize}px`);
+  });
+  container.on('resize', debounceLazy(event => asmEditor.resize(), 20));
+  container.on('destroy', event => {
+    if (asmEditor) {
+      asmEditor.destroy();
+      asmEditor = null;
+    }
+  });
+}
 
 function initLayout() {
   const defaultLayoutConfig = {
@@ -57,14 +65,15 @@ function initLayout() {
         componentName: 'editor',
         componentState: {fontSize: 18, value: initialProgram},
       }, {
-        type: 'stack',
+        type: 'column',
         content: [{
+          type: 'component',
+          componentName: 'Fable C',
+          componentState: {fontSize: 18, value: 'asdf'}
+        }, {
           type: 'component',
           componentName: 'terminal',
           componentState: {fontSize: 18},
-        }, {
-          type: 'component',
-          componentName: 'canvas',
         }]
       }]
     }]
@@ -85,6 +94,7 @@ function initLayout() {
   });
 
   layout.registerComponent('canvas', CanvasComponent);
+  layout.registerComponent('Fable C', AsmEditorComponent);
   layout.init();
 }
 
@@ -98,8 +108,10 @@ function resetLayout() {
 }
 
 // Toolbar stuff
-$('#reset').on('click', event => { if (confirm('really reset?')) resetLayout() });
-$('#run').on('click', event => run(editor));
+// $('#reset').on('click', event => { if (confirm('really reset?')) resetLayout() });
+$('#run').on('click', event => {
+  run(editor)
+});
 
 
 initLayout();
