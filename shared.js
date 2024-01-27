@@ -729,8 +729,10 @@ class API {
     this.memfs.addFile(input, contents);
     const clang = await this.getModule(this.clangFilename);
     return await this.run(clang, 'clang', '-cc1', '-emit-obj',
-                          ...this.clangCommonArgs, '-O2', '-o', obj, '-x',
-                          'c++', input);
+                          ...this.clangCommonArgs, '-O2', '-o', obj, 
+                          '-x',
+                          'c', 
+                          input);
   }
 
   async compileToAssembly(options) {

@@ -49,8 +49,8 @@ $('#showTiming').on('click', event => { api.setShowTiming(event.target.checked);
 
 function EditorComponent(container, state) {
   editor = ace.edit(container.getElement()[0]);
-  editor.session.setMode('ace/mode/c_cpp');
-  editor.setKeyboardHandler('ace/keyboard/vim');
+  editor.session.setMode('ace/mode/fsharp');
+  editor.setKeyboardHandler('ace/keyboard/sublime');
   editor.setOption('fontSize',);
   editor.setValue(state.value || '');
   editor.clearSelection();
@@ -225,7 +225,13 @@ class WorkerAPI {
   }
 
   compileLinkRun(contents) {
-    this.port.postMessage({id: 'compileLinkRun', data: contents});
+    fs.writeFileSync('Program.fs', contents);
+    window.build(contents, (compiledCode) => {
+      let withMain = compiledCode + `
+int main() { Program_fs(); return 0; }`
+      console.log(withMain);
+      this.port.postMessage({id: 'compileLinkRun', data: withMain});
+    })
   }
 
   postCanvas(offscreenCanvas) {

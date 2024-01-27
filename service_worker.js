@@ -30,13 +30,13 @@ self.addEventListener('install', event => {
         './6502.js',
         './asm.html',
         './asm.js',
-        './index.html',
+        // './index.html',
         './main.css',
         './memfs',
-        './shared.js',
-        './shared_web.js',
-        './web.js',
-        './worker.js',
+        // './shared.js',
+        // './shared_web.js',
+        // './web.js',
+        // './worker.js',
       ]);
     })
   );

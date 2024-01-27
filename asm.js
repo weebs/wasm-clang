@@ -110,7 +110,7 @@ $('#opt').on('input', event => setOpt(event.target.value));
 
 
 const compile = debounceLazy(async () => {
-  const input = 'test.cc';
+  const input = 'test.c';
   const output = 'test.S';
   const contents = editor.getValue();
   const outputBuf =
